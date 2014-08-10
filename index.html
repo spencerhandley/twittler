@@ -2,26 +2,113 @@
 <html>
   <head>
     <script src="jquery.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+  <!-- Optional theme -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    
+    <script src="moment.js"></script>
+
     <script src="data_generator.js"></script>
+
+    <style>
+      .container {
+        background-color: #F2F2F2;
+        height: 100%;
+      }
+      .header {
+
+      }
+
+      #all_tweets {
+        background-color: #16498C;
+        color: white;
+        border-radius: 5px;
+      }
+        #user_tweets {
+        background-color: #16498C;
+        color: white;
+        border-radius: 5px;
+      }
+    </style>
   </head>
   <body>
     <script>
 
       $(document).ready(function(){
         var $body = $('body');
-        $body.html('');
+        var $allTweets = $('#all_tweets')
+        var $userTweets = $('#user_tweets')
 
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
+        var addRecent = function() {
+          var index = streams.home.length - 1;
+
+          while(index >= 0){
+            var tweet = streams.home[index];
+            var user = '<a class="tweeter" data-tweeter-username="' + tweet.user +'">' + tweet.user + '</a>';
+
+            var $tweetBlock = $('<div>'+ 
+moment(tweet.created_at).startOf('hour').fromNow() + ': @' + user + ': ' + tweet.message + '</div>')
+            $tweetBlock.appendTo($allTweets);
+
+            index -= 1;
+          }
         }
+
+        var getUserTweets = function(username){
+          $userTweets.html("<div></div>")
+          var allUserTweets = streams.users[username]
+          $("#username").html("<h2>" + username + "'s Tweets</h2>")
+          console.log(allUserTweets)
+          for (tweet in allUserTweets){
+            console.log(allUserTweets[tweet])
+
+            var $tweetBlock = $('<div>'+ moment(allUserTweets[tweet].created_at).startOf('hour').fromNow() + ": " + allUserTweets[tweet].message + '</div>')
+            $tweetBlock.appendTo($userTweets);
+          }
+        }
+        
+
+        addRecent();
+        $("#refresh").click(function(){
+          addRecent();
+        })
+        $(".tweeter").click(function(){
+          var username = $(this).data("tweeterUsername")
+          getUserTweets(username)
+
+
+        })
 
       });
 
     </script>
+    
+    <div class="container">
+      <div class="header"> 
+        <h2>Twittler</h2>
+        <button id="refresh" class="btn btn-primary">refresh</button>
+      </div>
+      
+      <div class="row">
+        <div class="content col-md-6" >
+      <h2>All Tweets</h2> 
+      <div id="all_tweets" class="col-md-12" >
+      </div>
+      </div>
+      <div class="content col-md-6" >
+      <h2 id="username">User Tweets</h2>
+
+        <div id="user_tweets" class="col-md-12"  >
+        </div>
+      </div>
+    </div>
+    </div>
+
+
+    
   </body>
 </html>
